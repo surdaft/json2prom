@@ -11,10 +11,11 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var client = &http.Client{
-	Timeout: 5 * time.Second,
+	Timeout: 30 * time.Second,
 }
 
 type collector struct {
@@ -54,7 +55,7 @@ func main() {
 	http.Handle("/", http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 		resp.Write([]byte(`<html><head><title>json2prom</title></head><body><h1>json2prom</h1><p><a href="/metrics">Metrics</a></p></body></html>`))
 	}))
-	http.Handle("/metrics", prometheus.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 
 	addr := os.Getenv("HTTP_ADDR")
 	if addr == "" {
