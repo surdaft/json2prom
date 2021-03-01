@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -39,14 +41,26 @@ type action struct {
 }
 
 func main() {
-	sourcesJSON := os.Getenv("SOURCES")
-	if sourcesJSON == "" {
-		log.Print("environemnt variable SOURCES is requred")
+	var configPath string
+
+	flag.StringVar(&configPath, "config", "", "Path to config file")
+	flag.Parse()
+
+	if configPath == "" {
+		log.Print("config is requred")
 		return
 	}
 
+	var sourcesJSON []byte
+	var err error
+
+	sourcesJSON, err = ioutil.ReadFile(configPath)
+	if err != nil {
+		panic(err)
+	}
+
 	var sources []*source
-	if err := json.Unmarshal([]byte(sourcesJSON), &sources); err != nil {
+	if err := json.Unmarshal(sourcesJSON, &sources); err != nil {
 		log.Print(err)
 		return
 	}
